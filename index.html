@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adicional Noturno | SuporteADV</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d0d0d; color: #e0e0e0; padding: 24px 16px; }
+  .container { max-width: 720px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid #222; }
+  h1 { font-size: 1.5rem; color: #008080; margin-bottom: 6px; }
+  .subtitle { font-size: 0.88rem; color: #888; line-height: 1.5; }
+  .brand { font-size: 0.78rem; margin-top: 8px; color: #555; }
+  .brand span.s { color: #8B00FF; font-weight: 700; }
+  .brand span.a { color: #008080; font-weight: 700; }
+
+  .card { background: #111; border-radius: 10px; border: 1px solid #222; border-left: 3px solid #8B00FF; padding: 20px 22px; margin-bottom: 14px; transition: border-left-color 0.2s; }
+  .card:hover { border-left-color: #008080; }
+  .card-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #008080; font-weight: 700; margin-bottom: 16px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  @media (max-width: 520px) { .form-grid { grid-template-columns: 1fr; } }
+  .field.full { grid-column: 1 / -1; }
+
+  .field label { display: block; font-size: 0.78rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .field input, .field select {
+    width: 100%; padding: 9px 11px; border: 1.5px solid #333; border-radius: 6px;
+    font-size: 0.95rem; color: #fff; background: #1a1a1a; transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: #008080; box-shadow: 0 0 0 2px rgba(0,128,128,0.2); }
+  .field select option { background: #1a1a1a; }
+
+  .info-box { background: #0d1a1a; border: 1px solid #1a3a3a; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; font-size: 0.82rem; color: #666; line-height: 1.6; }
+  .info-box b { color: #008080; }
+
+  /* Horário visual */
+  .horario-visual { margin-bottom: 16px; }
+  .horario-visual label { display: block; font-size: 0.78rem; color: #888; margin-bottom: 8px; text-transform: uppercase; }
+  .clock-bar { position: relative; height: 32px; background: #1a1a1a; border-radius: 8px; overflow: hidden; margin-bottom: 6px; }
+  .clock-noturno { position: absolute; height: 100%; background: #1a2a4a; top: 0; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; color: #008080; font-weight: 700; }
+  .clock-diurno { position: absolute; height: 100%; background: #2a1a0a; top: 0; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; color: #ffaa00; font-weight: 700; }
+  .clock-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: #444; }
+
+  /* Linha de registros */
+  .reg-row { display: grid; grid-template-columns: auto 1fr 1fr 1fr 1fr 36px; gap: 8px; align-items: end; margin-bottom: 8px; }
+  @media (max-width: 600px) { .reg-row { grid-template-columns: 1fr 1fr 36px; } }
+  .num-badge { width: 28px; height: 36px; background: #1a1a1a; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: #555; font-weight: 700; }
+  .btn-add { background: transparent; color: #008080; border: 1.5px dashed #008080; padding: 7px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.18s; text-transform: uppercase; margin-bottom: 14px; width: 100%; }
+  .btn-add:hover { background: #0a1a1a; }
+  .btn-rem { background: #1a0a0a; border: 1px solid #3a1a1a; color: #ff4444; width: 36px; height: 36px; border-radius: 6px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  button.calcular { background: #008080; color: #fff; border: none; padding: 10px 26px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.07em; cursor: pointer; transition: background 0.18s; text-transform: uppercase; margin-right: 10px; }
+  button.calcular:hover { background: #006666; box-shadow: 0 0 10px rgba(0,128,128,0.4); }
+  button.limpar { background: transparent; color: #555; border: 1.5px solid #333; padding: 10px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+
+  /* Resultado */
+  .resultado { background: #0a1a0a; border: 1px solid #1a4a1a; border-radius: 10px; padding: 20px 22px; margin-top: 14px; display: none; }
+  .resultado.visible { display: block; }
+  .resultado-titulo { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #008080; font-weight: 700; margin-bottom: 16px; }
+
+  .res-principal { text-align: center; margin-bottom: 20px; }
+  .res-principal label { display: block; font-size: 0.72rem; color: #555; text-transform: uppercase; margin-bottom: 6px; }
+  .res-principal .v { font-size: 1.8rem; font-weight: 700; color: #00ff00; font-family: 'Courier New', monospace; }
+  .res-principal .sub { font-size: 0.82rem; color: #555; margin-top: 4px; }
+
+  .res-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 560px) { .res-grid { grid-template-columns: 1fr 1fr; } }
+  .res-item label { display: block; font-size: 0.68rem; color: #555; text-transform: uppercase; margin-bottom: 3px; }
+  .res-item .valor { font-size: 0.9rem; font-weight: 700; color: #ccc; font-family: 'Courier New', monospace; }
+  .res-item .valor.teal { color: #008080; }
+  .res-item .valor.sec { color: #555; font-size: 0.85rem; }
+
+  .divider { border: none; border-top: 1px solid #1a3a1a; margin: 14px 0; }
+
+  /* Tabela */
+  .tabela-wrap { overflow-x: auto; margin-top: 14px; }
+  .tabela-wrap summary { cursor: pointer; color: #008080; font-size: 0.82rem; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 550px; }
+  th { text-align: left; color: #555; padding: 6px 8px; border-bottom: 1px solid #222; font-size: 0.72rem; text-transform: uppercase; }
+  td { color: #999; padding: 6px 8px; border-bottom: 1px solid #1a1a1a; }
+  tr:hover td { background: #151515; }
+  td.dest { color: #00ff00; font-weight: 700; font-family: 'Courier New', monospace; }
+  td.noturno { color: #008080; }
+  tr.total-row td { color: #fff; font-weight: 700; background: #0d1a0d; border-top: 1px solid #333; }
+
+  .erro { background: #1a0a0a; border: 1px solid #4a1a1a; border-radius: 8px; padding: 14px 16px; color: #ff6666; font-size: 0.88rem; margin-top: 14px; display: none; }
+  .erro.visible { display: block; }
+  .aviso { font-size: 0.72rem; color: #444; margin-top: 12px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Adicional Noturno</h1>
+    <p class="subtitle">Calcule o adicional noturno com hora ficta reduzida (52min30s). Base: CLT, art. 73.</p>
+    <p class="brand"><span class="s">suporte</span><span class="a">ADV</span>.br — Ferramentas para Advogados</p>
+  </div>
+
+  <div class="card">
+    <div class="info-box">
+      <b>Regras do adicional noturno (CLT, art. 73):</b>
+      • Período noturno: <b>22h às 5h</b> (urbano) | 20h às 4h (rural lavoura) | 21h às 5h (rural pecuária)
+      • Adicional mínimo: <b>20%</b> sobre a hora diurna
+      • Hora noturna reduzida: cada hora noturna equivale a <b>52min30s</b> (hora ficta)
+      • Podem ser cumulados com horas extras noturnas
+    </div>
+
+    <div class="card-label">Dados do Empregado</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Salário mensal (R$)</label>
+        <input type="number" id="salario" placeholder="Ex: 3000,00" step="0.01" min="0" oninput="calcHoraBase()">
+      </div>
+      <div class="field">
+        <label>Jornada mensal (horas)</label>
+        <select id="jornadaMensal" onchange="calcHoraBase()">
+          <option value="220">220h (44h semanais)</option>
+          <option value="200">200h (40h semanais)</option>
+          <option value="180">180h (36h semanais)</option>
+          <option value="150">150h (30h semanais)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Valor da hora diurna (R$)</label>
+        <input type="number" id="valorHoraDiurna" placeholder="Calculado automaticamente" step="0.0001" min="0">
+      </div>
+      <div class="field">
+        <label>Adicional noturno (%)</label>
+        <input type="number" id="adicionalPct" value="20" step="5" min="20" max="100">
+      </div>
+      <div class="field">
+        <label>Tipo de trabalho noturno</label>
+        <select id="tipoNoturno">
+          <option value="urbano">Urbano (22h às 5h)</option>
+          <option value="rural_lavoura">Rural — Lavoura (20h às 4h)</option>
+          <option value="rural_pecuaria">Rural — Pecuária (21h às 5h)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Usar hora ficta reduzida?</label>
+        <select id="horaFicta">
+          <option value="sim">Sim — 52min30s por hora (CLT)</option>
+          <option value="nao">Não — hora cheia (60min)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-label">Registros de Trabalho Noturno</div>
+    <div id="registros-container"></div>
+    <button class="btn-add" onclick="addRegistro()">+ Adicionar registro</button>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="calcular" onclick="calcular()">CALCULAR</button>
+      <button class="limpar" onclick="limpar()">LIMPAR</button>
+    </div>
+  </div>
+
+  <div class="erro" id="erro"></div>
+
+  <div class="resultado" id="resultado">
+    <div class="resultado-titulo">Resultado — Adicional Noturno</div>
+
+    <div class="res-principal">
+      <label>💰 Total de adicional noturno</label>
+      <div class="v" id="res-total">—</div>
+      <div class="sub" id="res-sub">—</div>
+    </div>
+
+    <div class="res-grid">
+      <div class="res-item"><label>Hora diurna</label><div class="valor teal" id="res-hora-diurna">—</div></div>
+      <div class="res-item"><label>Hora noturna</label><div class="valor" id="res-hora-noturna">—</div></div>
+      <div class="res-item"><label>Total horas noturnas</label><div class="valor" id="res-total-horas">—</div></div>
+      <div class="res-item"><label>Horas fictas</label><div class="valor sec" id="res-horas-fictas">—</div></div>
+    </div>
+
+    <hr class="divider">
+
+    <details class="tabela-wrap" open>
+      <summary>Ver detalhamento por registro</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Data</th><th>Entrada</th><th>Saída</th>
+            <th>H. noturnas</th><th>H. fictas</th><th>Adicional</th><th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-body"></tbody>
+      </table>
+    </details>
+
+    <p class="aviso">⚠️ A hora noturna reduzida (ficta) significa que em 60 minutos reais de trabalho noturno, o empregado computa 60/52,5 ≈ 1,14 horas fictas, aumentando o número de horas computadas. Verifique a convenção coletiva — adicionais podem superar 20%.</p>
+  </div>
+
+</div>
+
+<script>
+let numRegistros = 0;
+
+const periodoNoturno = {
+  urbano:         { inicio: 22, fim: 5 },
+  rural_lavoura:  { inicio: 20, fim: 4 },
+  rural_pecuaria: { inicio: 21, fim: 5 },
+};
+
+function calcHoraBase() {
+  const sal = parseFloat(document.getElementById('salario').value) || 0;
+  const jorn = parseInt(document.getElementById('jornadaMensal').value) || 220;
+  if (sal > 0) document.getElementById('valorHoraDiurna').value = (sal / jorn).toFixed(4);
+}
+
+function addRegistro(data='', entrada='22:00', saida='05:00') {
+  numRegistros++;
+  const id = numRegistros;
+  const div = document.createElement('div');
+  div.className = 'reg-row';
+  div.id = `reg-${id}`;
+  div.innerHTML = `
+    <div class="num-badge">${id}</div>
+    <div class="field"><label>Data</label><input type="date" id="rData-${id}" value="${data}"></div>
+    <div class="field"><label>Entrada</label><input type="time" id="rEntrada-${id}" value="${entrada}"></div>
+    <div class="field"><label>Saída</label><input type="time" id="rSaida-${id}" value="${saida}"></div>
+    <div class="field"><label>Obs</label><input type="text" id="rObs-${id}" placeholder="Opcional"></div>
+    <button class="btn-rem" onclick="remRegistro(${id})">✕</button>`;
+  document.getElementById('registros-container').appendChild(div);
+}
+
+function remRegistro(id) {
+  const el = document.getElementById(`reg-${id}`);
+  if (el) el.remove();
+}
+
+function limpar() {
+  document.getElementById('registros-container').innerHTML = '';
+  numRegistros = 0;
+  addRegistro(new Date().toISOString().split('T')[0]);
+  document.getElementById('resultado').classList.remove('visible');
+  hideErro();
+}
+
+function fmtMoeda(v) { return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtData(d) { try { return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}); } catch(e) { return d||'—'; } }
+
+function showErro(msg) {
+  document.getElementById('erro').textContent = msg;
+  document.getElementById('erro').classList.add('visible');
+  document.getElementById('resultado').classList.remove('visible');
+}
+function hideErro() { document.getElementById('erro').classList.remove('visible'); }
+
+function horasNoturnas(entradaStr, saidaStr, tipoNoturno) {
+  if (!entradaStr || !saidaStr) return 0;
+  const [hE, mE] = entradaStr.split(':').map(Number);
+  const [hS, mS] = saidaStr.split(':').map(Number);
+
+  const p = periodoNoturno[tipoNoturno];
+  const inicioNoturno = p.inicio;
+  const fimNoturno = p.fim;
+
+  // Converte para minutos desde meia-noite
+  let entMin = hE * 60 + mE;
+  let saiMin = hS * 60 + mS;
+  if (saiMin <= entMin) saiMin += 24 * 60; // passa da meia-noite
+
+  // Período noturno em minutos
+  let noturnoInicioMin = inicioNoturno * 60;
+  let noturnoFimMin = fimNoturno * 60;
+  if (noturnoFimMin <= noturnoInicioMin) noturnoFimMin += 24 * 60;
+
+  // Intersecção
+  const inicioIntersec = Math.max(entMin, noturnoInicioMin);
+  const fimIntersec = Math.min(saiMin, noturnoFimMin);
+
+  // Também verifica no dia seguinte (quando jornada cruza meia-noite)
+  let minutosNoturno = Math.max(0, fimIntersec - inicioIntersec);
+
+  // Segunda janela (ex: entrada 23h, saída 6h — precisa verificar 0-5h também)
+  const inicioIntersec2 = Math.max(entMin, noturnoInicioMin - 24*60);
+  const fimIntersec2 = Math.min(saiMin, noturnoFimMin - 24*60);
+  minutosNoturno += Math.max(0, fimIntersec2 - inicioIntersec2);
+
+  return minutosNoturno / 60;
+}
+
+function calcular() {
+  hideErro();
+  const valorHoraDiurna = parseFloat(document.getElementById('valorHoraDiurna').value);
+  if (!valorHoraDiurna || valorHoraDiurna <= 0) return showErro('Informe o salário ou o valor da hora diurna.');
+
+  const adicionalPct = parseFloat(document.getElementById('adicionalPct').value) / 100;
+  const tipoNoturno = document.getElementById('tipoNoturno').value;
+  const usaFicta = document.getElementById('horaFicta').value === 'sim';
+
+  const rows = document.querySelectorAll('[id^="reg-"]');
+  const registros = [];
+  for (const row of rows) {
+    const id = row.id.replace('reg-','');
+    const data = document.getElementById(`rData-${id}`)?.value || '';
+    const entrada = document.getElementById(`rEntrada-${id}`)?.value || '';
+    const saida = document.getElementById(`rSaida-${id}`)?.value || '';
+    const obs = document.getElementById(`rObs-${id}`)?.value || '';
+    const hNot = horasNoturnas(entrada, saida, tipoNoturno);
+    if (hNot > 0 || (entrada && saida)) registros.push({ data, entrada, saida, obs, hNot });
+  }
+  if (registros.length === 0) return showErro('Adicione ao menos um registro.');
+
+  // Hora ficta: 1h real = 60/52.5 = 1.1428... horas fictas
+  const fatorFicta = usaFicta ? 60 / 52.5 : 1;
+  const valorHoraNoturna = valorHoraDiurna * (1 + adicionalPct);
+
+  let totalHorasReais = 0, totalHorasFictas = 0, totalAdicional = 0;
+  const linhas = [];
+
+  registros.forEach((r, i) => {
+    const hFictas = r.hNot * fatorFicta;
+    const adicional = hFictas * valorHoraDiurna * adicionalPct;
+    totalHorasReais += r.hNot;
+    totalHorasFictas += hFictas;
+    totalAdicional += adicional;
+    linhas.push({ ...r, hFictas, adicional });
+  });
+
+  document.getElementById('res-total').textContent = fmtMoeda(totalAdicional);
+  document.getElementById('res-sub').textContent = `${totalHorasReais.toFixed(2)}h reais | ${totalHorasFictas.toFixed(2)}h fictas | adicional ${(adicionalPct*100).toFixed(0)}%`;
+  document.getElementById('res-hora-diurna').textContent = fmtMoeda(valorHoraDiurna);
+  document.getElementById('res-hora-noturna').textContent = fmtMoeda(valorHoraNoturna);
+  document.getElementById('res-total-horas').textContent = totalHorasReais.toFixed(2) + 'h';
+  document.getElementById('res-horas-fictas').textContent = usaFicta ? totalHorasFictas.toFixed(2) + 'h' : 'Não aplicada';
+
+  // Tabela
+  const tbody = document.getElementById('tabela-body');
+  tbody.innerHTML = '';
+  linhas.forEach((l, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${l.data ? fmtData(l.data) : '—'}</td>
+      <td class="noturno">${l.entrada||'—'}</td>
+      <td class="noturno">${l.saida||'—'}</td>
+      <td>${l.hNot.toFixed(2)}h</td>
+      <td>${usaFicta ? l.hFictas.toFixed(2)+'h' : '—'}</td>
+      <td>+${(adicionalPct*100).toFixed(0)}%</td>
+      <td class="dest">${fmtMoeda(l.adicional)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const trT = document.createElement('tr');
+  trT.className = 'total-row';
+  trT.innerHTML = `<td colspan="4">TOTAL</td><td>${totalHorasReais.toFixed(2)}h</td><td>${usaFicta?totalHorasFictas.toFixed(2)+'h':'—'}</td><td>—</td><td class="dest">${fmtMoeda(totalAdicional)}</td>`;
+  tbody.appendChild(trT);
+
+  document.getElementById('resultado').classList.add('visible');
+}
+
+// Init
+const hoje = new Date();
+addRegistro(hoje.toISOString().split('T')[0]);
+calcHoraBase();
+
+document.getElementById('jornadaMensal').addEventListener('change', calcHoraBase);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { const f = document.activeElement; if (f && (f.tagName==='INPUT'||f.tagName==='SELECT')) calcular(); }
+});
+</script>
+</body>
+</html>
